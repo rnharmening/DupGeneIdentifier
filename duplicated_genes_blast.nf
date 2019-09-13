@@ -1,22 +1,20 @@
 #!/usr/bin/env nextflow
 
 /*
- * ....
- *
  *
  * Based on an example by the nextflow author(s).
+ * 
  */
  
 /*
  * The pipeline inputs parameters which have to be specified as command line options
  */
+
 blast_cmd = params.blast_cmd
 blastFile = file(params.blastFile)
 blast_dbName = params.blast_dbName
 dbDir = file(params.dbDir)
 pubDir = file(params.pubDir)
-email = params.email
-
 
 /*
  * optional input paramters
@@ -44,7 +42,7 @@ if( !pubDir.exists() ) {
 /*
  * 1a) Make BLAST database for the input file
  */
- process makedb {
+process makedb {
     storeDir "$dbDir"
 
     input:
@@ -109,8 +107,7 @@ process identify_duplicated_genes {
     """
 }
   workflow.onComplete {
-      def subject = 'Reciprocal BLAST execution'
-      def recipient = $email
+      def subject = 'Duplicated Gene Identification'
       
       def msg = """\
       Pipeline execution summary  
@@ -127,6 +124,4 @@ process identify_duplicated_genes {
       .stripIndent()
 
       println(msg)
-
-      // sendMail(to: "robin.harmening@student.uni-tuebingen.de", subject: 'Reciprocal BLAST execution', body: msg)
   }
