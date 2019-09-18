@@ -1,0 +1,11 @@
+  # You can use this file to create a conda environment for this pipeline:
+  # conda env create -f environment.yml
+  name: duplicated_genes_blast_nf
+  channels:
+    - conda-forge
+    - bioconda
+    - defaults
+  dependencies:
+    - bioconda::blast=2.9.0
+    - python=3.7
+    - conda-forge::pandas=0.25.1
