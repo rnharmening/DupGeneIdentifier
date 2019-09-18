@@ -2,7 +2,7 @@
 
 Nextflow script to identify duplicated gene sequences in a FastA file. Each gene has to be one sequence in the Fasta file
 
-To run the pipeline blast has to be installed.
+To run the pipeline blast has to be installed (or you use the conda `environment.yml`).
 
 ## General Usage
 
