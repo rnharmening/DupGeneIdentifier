@@ -25,7 +25,7 @@ params.pident_threshold = 80
 params.qcovs_threshold = 75
 
 
-dbtypes = ["blastn":"nucl", "blastp":"prot", "blastx":"prot", "tblastn":"nucl", "tblastx":"nucl"]
+dbtypes = ["blastn":"nucl", "blastp":"prot"] //, "blastx":"prot", "tblastn":"nucl", "tblastx":"nucl"]
 
 dbtype = dbtypes[blast_cmd]
  
@@ -106,7 +106,8 @@ process identify_duplicated_genes {
         --qcovs $params.qcovs_threshold
     """
 }
-  workflow.onComplete {
+  
+workflow.onComplete {
       def subject = 'Duplicated Gene Identification'
       
       def msg = """\
