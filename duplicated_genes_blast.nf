@@ -25,7 +25,7 @@ params.pident_threshold = 80
 params.qcovs_threshold = 75
 
 
-dbtypes = ["blastn":"nucl", "blastp":"prot"] //, "blastx":"prot", "tblastn":"nucl", "tblastx":"nucl"]
+adbtypes = ["blastn":"nucl", "blastp":"prot"] //, "blastx":"prot", "tblastn":"nucl", "tblastx":"nucl"]
 
 dbtype = dbtypes[blast_cmd]
  
