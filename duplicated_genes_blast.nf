@@ -17,11 +17,11 @@ def helpMessage() {
     
     Mandatory arguments:
       --blast_cmd             Which blast algorithm to use (blastp or blastn)
-      --blastFile             Input File in fasta format, containing protein or nucleotide sequences Each entry (">") is considdered as one gene.
+      --blastFile             Input File in fasta format, containing protein or nucleotide sequences. Each entry (">") is considered as one gene.
       --blast_dbName <db>     Name how the generated database should be stored
     
     Optional arguments:
-      --max_target_seqs       The maximal number of hits for blast to report (take care if you use an < 2.81 version of blast!) [def: 100]
+      --max_target_seqs       The maximal number of hits for blast to report (take care if you use an < 2.9 version of blast!) [def: 100]
       --pident_threshold      The pident threshold for which genes should be reported as dupplicated [def: blastn:90 blastp:80] 
       --qcovs_threshold       The qcovs threshold for which genes should be reported as dupplicated [def: blastn:90 blastp:80] 
       --eval                  The evalue cutoff for blast [def: blastn:1e-7 blastp:1e-4] 
