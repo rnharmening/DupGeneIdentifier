@@ -5,7 +5,39 @@
  * Based on an example by the nextflow author(s).
  * 
  */
+
+def helpMessage() {
+    log.info"""
+    =========================================
+    Dupplicated Gene Finder
+    =========================================
+    Usage:
+    The typical command for running the pipeline is as follows:
+    nextflow run duplicated_genes_blast.nf --blast_cmd <blastp> --blastFile <.faa> --blast_dbName <db>
+    
+    Mandatory arguments:
+      --blast_cmd             Which blast algorithm to use (blastp or blastn)
+      --blastFile             Input File in fasta format, containing protein or nucleotide sequences Each entry (">") is considdered as one gene.
+      --blast_dbName <db>     Name how the generated database should be stored
+    
+    Optional arguments:
+      --max_target_seqs       The maximal number of hits for blast to report (take care if you use an < 2.81 version of blast!) [def: 100]
+      --pident_threshold      The pident threshold for which genes should be reported as dupplicated [def: blastn:90 blastp:80] 
+      --qcovs_threshold       The qcovs threshold for which genes should be reported as dupplicated [def: blastn:90 blastp:80] 
+      --eval                  The evalue cutoff for blast [def: blastn:1e-7 blastp:1e-4] 
+        
+      --dbDir                 The directory where the generated database will be stored [def: DataBases]
+      --pubDir                The directory where the results will be stored [def: Results]
+    """.stripIndent()
+}
  
+// Show help message
+params.help = false
+if (params.help){
+    helpMessage()
+    exit 0
+}
+
 /*
  * The pipeline inputs parameters which have to be specified as command line options
  */
@@ -13,20 +45,21 @@
 blast_cmd = params.blast_cmd
 blastFile = file(params.blastFile)
 blast_dbName = params.blast_dbName
+params.dbDir = "DataBases"
 dbDir = file(params.dbDir)
+params.pubDir = "Results"
 pubDir = file(params.pubDir)
 
 /*
  * optional input paramters
  */
 
-params.max_target_seqs = 100
-params.pident_threshold = 80
-params.qcovs_threshold = 75
+params.max_target_seqs = 100 
+params.pident_threshold = (blast_cmd == "blastn") ? 90 : 80 
+params.qcovs_threshold = (blast_cmd == "blastn") ? 90 : 80 
+params.eval = (blast_cmd == "blastn") ? 10**(-7): 10**(-4)
 
-
-adbtypes = ["blastn":"nucl", "blastp":"prot"] //, "blastx":"prot", "tblastn":"nucl", "tblastx":"nucl"]
-
+dbtypes = ["blastn":"nucl", "blastp":"prot"] //, "blastx":"prot", "tblastn":"nucl", "tblastx":"nucl"]
 dbtype = dbtypes[blast_cmd]
  
 
@@ -79,7 +112,7 @@ process blast {
     -db $dbDir/$blast_dbName \
     -out $out_file \
     -outfmt '6 qaccver saccver pident length mismatch gapopen qstart qend sstart send evalue bitscore qframe sframe qlen slen qcovs qcovhsp' \
-    -evalue 0.0001 \
+    -evalue $params.eval \
     -max_target_seqs $params.max_target_seqs -num_threads 10 
     """
 }
