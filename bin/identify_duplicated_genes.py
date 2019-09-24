@@ -17,8 +17,8 @@ def filter_blast_df(df: pd.DataFrame, *, pident = 80, qcovs = 75):
     df.columns = "qaccver saccver pident length mismatch gapopen qstart qend sstart send evalue bitscore qframe sframe qlen slen qcovs qcovhsp".split()
     
     # remove nasty lcl| prefixes
-    df.qaccver = df.qaccver.str.replace(r"lcl|", "")
-    df.saccver = df.saccver.str.replace(r"lcl|", "")
+    df.qaccver = df.qaccver.str.replace(r"lcl\|", "")
+    df.saccver = df.saccver.str.replace(r"lcl\|", "")
 
     #remove HSPs where query and subject id are identical
     filtered = df[df['qaccver'] != df['saccver']]
