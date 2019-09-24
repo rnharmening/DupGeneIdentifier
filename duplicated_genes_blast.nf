@@ -18,7 +18,6 @@ def helpMessage() {
     Mandatory arguments:
       --blast_cmd             Which blast algorithm to use (blastp or blastn)
       --blastFile             Input File in fasta format, containing protein or nucleotide sequences. Each entry (">") is considered as one gene.
-      --blast_dbName <db>     Name how the generated database should be stored
     
     Optional arguments:
       --max_target_seqs       The maximal number of hits for blast to report (take care if you use an < 2.9 version of blast!) [def: 100]
@@ -43,8 +42,7 @@ if (params.help){
  */
 
 blast_cmd = params.blast_cmd
-blastFile = file(params.blastFile)
-blast_dbName = params.blast_dbName
+blast_input = params.blastFile
 params.dbDir = "DataBases"
 dbDir = file(params.dbDir)
 params.pubDir = "Results"
@@ -63,7 +61,7 @@ dbtypes = ["blastn":"nucl", "blastp":"prot"] //, "blastx":"prot", "tblastn":"nuc
 dbtype = dbtypes[blast_cmd]
  
 
-println "Searching for duplicated genes in " + blastFile + " using itself as the database"
+println "Searching for duplicated genes"
 println "results stored in: " + pubDir
 
 
@@ -72,6 +70,13 @@ if( !pubDir.exists() ) {
   new File("$pubDir").mkdir()  
 }
 
+// Create the input file channels
+Channel.fromFilePairs( blast_input, size: 1)
+        .ifEmpty { exit 1, "Cannot find any fasta files matching: ${params.reads}\n" +\
+            "NB: Path needs to be enclosed in quotes!\nNB: Path requires exactly one * wildcard!\n"}
+        .into { file_for_db; file_for_blast }
+
+
 /*
  * 1a) Make BLAST database for the input file
  */
@@ -79,14 +84,15 @@ process makedb {
     storeDir "$dbDir"
 
     input:
-    file blastFile
+    set basename, file(blastFile) from file_for_db
 
     output:
     //file db
-    file "${blast_dbName}.*" into db
+    set basename, file("${basename}_db.*") into db
 
+    script:
     """
-    makeblastdb -in $blastFile -dbtype $dbtype -out $blast_dbName -parse_seqids -hash_index 
+    makeblastdb -in $blastFile -dbtype $dbtype -out ${basename}_db -parse_seqids -hash_index 
     """
 }
 
@@ -97,19 +103,17 @@ process blast {
     publishDir "$pubDir", mode: 'copy'
 
     input:
-    file db
-    file blastFile
+    set basename, file(db), file(blastFile) from db.join(file_for_blast)
     val dbDir
-    val blast_dbName
 
     output:
     file out_file into blast_table_ch
 
     script:
-    out_file = "${blastFile.simpleName}.blast_hits.tsv"
+    out_file = "${basename}.blast_hits.tsv"
     """
     $blast_cmd -query $blastFile \
-    -db $dbDir/$blast_dbName \
+    -db $dbDir/${basename}_db \
     -out $out_file \
     -outfmt '6 qaccver saccver pident length mismatch gapopen qstart qend sstart send evalue bitscore qframe sframe qlen slen qcovs qcovhsp' \
     -evalue $params.eval \
