@@ -63,12 +63,15 @@ dbtype = dbtypes[blast_cmd]
 
 println "Searching for duplicated genes"
 println "results stored in: " + pubDir
+println "blastFile: " + blast_input
 
 
 // make publishDir if it doesn't exist
 if( !pubDir.exists() ) {
   new File("$pubDir").mkdir()  
 }
+
+
 
 // Create the input file channels
 Channel.fromFilePairs( blast_input, size: 1)
