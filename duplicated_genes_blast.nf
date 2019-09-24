@@ -72,7 +72,7 @@ if( !pubDir.exists() ) {
 
 // Create the input file channels
 Channel.fromFilePairs( blast_input, size: 1)
-        .ifEmpty { exit 1, "Cannot find any fasta files matching: ${params.reads}\n" +\
+        .ifEmpty { exit 1, "Cannot find any fasta files matching: ${blast_input}\n" +\
             "NB: Path needs to be enclosed in quotes!\nNB: Path requires exactly one * wildcard!\n"}
         .into { file_for_db; file_for_blast }
 
