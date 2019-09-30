@@ -134,7 +134,7 @@ process identify_duplicated_genes {
     file blast_table from blast_table_ch
  
     output:
-    file out_file
+    file out_file into identical_identification_ch
 
     script:
     out_file = "${blast_table.simpleName}.duplicates.tsv"
@@ -144,6 +144,27 @@ process identify_duplicated_genes {
         -o $out_file \
         --pident $params.pident_threshold \
         --qcovs $params.qcovs_threshold
+    """
+}
+
+/*
+ * 4) run python script to extract genes with exactly the same sequence. (100% identical)
+ */
+process identify_idetical_to_remove_genes {
+    publishDir "$pubDir", mode: 'copy'
+
+    input:
+    file in_file from identical_identification_ch
+ 
+    output:
+    file out_file
+
+    script:
+    out_file = "${in_file.simpleName}.identical_to_remove.tsv"
+    """
+      identical_genes.py \
+      -i $in_file \
+      -o $out_file
     """
 }
   
